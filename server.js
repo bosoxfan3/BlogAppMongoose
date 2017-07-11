@@ -67,21 +67,41 @@ app.post('/blog-posts', (req, res) => {
     })
 });
 
-// app.put('/blog-posts/:id', (req, res) => {
-//   if (req.params.id !== req.body.id) {
-//     console.error('error');
-//     res.status(400).send('missing fields');
-//   }
-//   BlogPost
-//     .findById(req.params.id)
-//     .exec()
-//     .then(resultObject => {
-//       author = this.author,
-//       title = this.title,
+app.put('/blog-posts/:id', (req, res) => {
+  if (req.params.id !== req.body.id) {
+    console.error('error');
+    res.status(400).send('missing fields');
+  }
 
+  const toUpdate = {};
+  const updateableFields = ['title', 'content', 'author'];
 
+  updateableFields.forEach(field => {
+    if (field in req.body) {
+      toUpdate[field] = req.body[field];
+    }
+  });
 
-// });
+  BlogPost
+    .findByIdAndUpdate(req.params.id, { $set: toUpdate })
+    .exec()
+    .then(resultObject => {
+      res.status(200).send(resultObject); // returns object before editing
+    });
+});
+
+app.delete('/blog-posts/:id', (req, res) => {
+  BlogPost
+    .findByIdAndRemove(req.params.id)
+    .exec()
+    .then(resultObject => {
+      res.status(204).end();
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json('no id');
+    });
+});
 
 let server;
 
@@ -103,6 +123,8 @@ function runServer(databaseUrl=DATABASE_URL, port=PORT) {
     });
   });
 }
+
+// 596518148ed0ed499c5242b7
 
 function closeServer() {
   return mongoose.disconnect().then(() => {
