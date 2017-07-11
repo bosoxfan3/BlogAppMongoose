@@ -50,9 +50,38 @@ app.post('/blog-posts', (req, res) => {
       res.status(400).send('missing fields');
     }
   }
-
-  res.status(201).json(req.body);
+  BlogPost
+    .create({
+      title: req.body.title,
+      content: req.body.content,
+      author: {firstName: req.body.author.firstName,
+              lastName: req.body.author.lastName
+      }
+    })
+    .then(resultObject => {
+      res.status(201).json(resultObject.apiRepr());
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).send('server error');
+    })
 });
+
+// app.put('/blog-posts/:id', (req, res) => {
+//   if (req.params.id !== req.body.id) {
+//     console.error('error');
+//     res.status(400).send('missing fields');
+//   }
+//   BlogPost
+//     .findById(req.params.id)
+//     .exec()
+//     .then(resultObject => {
+//       author = this.author,
+//       title = this.title,
+
+
+
+// });
 
 let server;
 
